@@ -1,0 +1,73 @@
+具体例子说明可以在frameworks的hotArticle查看，这里有全面的注解
+CategoryServiceImpl里面有lambda表达式去重
+
+Security的配置类应该定义到哪个模块？区分的一个关键是它会不会和后台系统共用的，
+其实它不是，因为后面要在这个配置类配置认证授权的规则，前台系统认证授权的规则会少一点，
+但是后台系统基本上都是要登录的，并且很多接口都需要进行授权的处理。
+
+这里没有上传头像，上传图片功能，没有使用OSS存储功能，只允许管理员上传图片和头像
+这里也没有swagger联调测试文档，可以在postman中联调
+
+2个可用账号
+占利康 密码123456
+zlk   密码1234
+鞠婧祎 密码123456
+djy   密码123456
+
+
+
+//2023.9.24
+更新了完成代码，将springboot版本从2.7.4改为2.5.0，数据库的依赖从blog模块的pom.xml文件删除
+之后改回了2.7.4
+
+
+
+TODO
+1.写博文过程当中，如果文章不选择分类或者其他字段，会报空指针异常，从而导致主页面无法展示，那么在前端改正代码，使得不选择分类，那么就是默认分类（无分类状态），其他字段依然这样子改
+2.缩略图无法上传服务器显示到页面，改进接口，可以直接提供http地址，根据http地址显示缩略图，在前端改
+3.右侧最热博文这里，根据推荐值进行排名，推荐值可以由最初写博文设置，也可以由用户设置，每个点了推荐之后，推荐值+1
+4.实现pdf文章导出，导入功能
+PDF（Portable Document Format）是一种可移植文档格式，完全满足可信性、安全性、保密性等要求，也是企业级应用中常用的导出格式之一。Spring Boot 也提供了多种 PDF 导出的工具和插件。
+5.如果评论的人账号禁用，那么整个评论都展示不出来，因为空指针异常toCommentVoList(CommentServiceImpl.java:93)
+其中，使用第三方工具 iText 可以实现将 Java 对象直接导出为 PDF 格式。使用方法如下：
+    @GetMapping("/export")
+    public void export(HttpServletResponse response) throws Exception {
+        response.setContentType("application/pdf");
+        response.setHeader("Content-Disposition", "attachment;filename=\"template.pdf\"");
+        Document document = new Document();
+        try (PdfWriter writer = PdfWriter.getInstance(document, response.getOutputStream())) {
+            document.open();
+            document.add(new Paragraph("Hello, World!"));
+            document.close();
+        }
+    }
+其中，response.setContentType 指定了导出文件的 MIME 类型，以及 Content-Disposition 指定了导出文件的名称。在 try-with-resources 语句块中，创建一个 Document 对象，设置其大小、边距等属性，打开文档，写入内容，最后关闭文档。
+
+TODO
+1.将数据库清空，使用自定义主键
+2.后台查询文章的功能，目前只能根据标题查，不能根据摘要查
+
+
+
+
+
+
+question
+1.在更新浏览量的时候，由于我们是先从数据库读，到redis里面存，然后开启定时任务让mysql到redis里面读取数据，避免数据库频繁的更新，降低性能。
+之后有一个小bug，就是在更新Article文章的时候，有updateBy,updateTime两个字段，当执行更新操作的时候，java会自动去填充这2个字段，
+填充的代码在MyMetaObjectHandler里面，可以看到this.setFieldValByName("updateBy", SecurityUtils.getUserId(), metaObject);
+这段代码需要解析token头获取用户信息，而在前端请求是没有请求头的，所以请求头为空，也就无法解析用户信息，此时控制台将字符串无法转换为loginuser类型，
+而这个字符串就是null,也就报空指针异常了，因此我的改进是，在转换的时候，加上authentication不能为空这个条件，否则报用户没有登录，完善这个功能，使得出错能够更快定位到问题
+第二就是在更新浏览量的时候加上特判，只有是更新浏览量不执行填充操作
+
+
+
+
+
+
+
+
+逻辑删除
+UpdateWrapper<Menu> wrapper = new UpdateWrapper<>();
+        // 选择id为id的tag行，将del_flag置为1
+        wrapper.eq("id", id).set("del_flag",1);

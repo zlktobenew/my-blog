@@ -1,0 +1,13 @@
+com\zlk\controller\CategoryController.class
+com\zlk\controller\RoleController.class
+com\zlk\filter\JwtAuthenticationTokenFilter.class
+com\zlk\controller\UploadController.class
+com\zlk\BlogAdminApplication.class
+com\zlk\config\SecurityConfig.class
+com\zlk\controller\MenuController.class
+com\zlk\controller\TagController.class
+com\zlk\controller\ArticleController.class
+com\zlk\controller\LinkController.class
+com\zlk\controller\LoginController.class
+com\zlk\handler\MyMetaObjectHandler.class
+com\zlk\controller\UserController.class
